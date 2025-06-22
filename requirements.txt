@@ -1,0 +1,14 @@
+# Core requirements for Claude Usage Tracker
+# No external dependencies required - uses only Python standard library
+
+# Optional dependencies for enhanced features:
+
+# For macOS menu bar widget
+# rumps>=0.4.0  # Uncomment if using menu bar functionality
+
+# For data export features (future enhancement)
+# pandas>=1.3.0  # Uncomment for CSV export functionality
+
+# For web dashboard (future enhancement)  
+# flask>=2.0.0  # Uncomment for web interface
+# plotly>=5.0.0  # Uncomment for interactive charts
