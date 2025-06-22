@@ -22,7 +22,7 @@ Track your Claude Code usage and see what it would cost on API pricing. Get insi
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/claude-usage-tracker.git
+git clone https://github.com/andybowu/claude-usage-tracker.git
 cd claude-usage-tracker
 
 # Run the tracker
