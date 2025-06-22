@@ -88,6 +88,8 @@ cu
 <details>
 <summary>Show real-time usage in your menu bar</summary>
 
+![Menu Bar Widget Screenshot](images/menu-bar-widget.png)
+
 ```bash
 # Start the menu bar widget
 python3 claude_menu_bar.py

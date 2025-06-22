@@ -16,6 +16,8 @@ import time
 class ClaudeUsageMenuBarApp(rumps.App):
     def __init__(self):
         super(ClaudeUsageMenuBarApp, self).__init__("Claude: Loading...", quit_button=None)
+        # Clear any default menu items first
+        self.menu.clear()
         self.menu = [
             "Today's Requests: Loading...",
             "Today's Cost: Loading...",
@@ -26,7 +28,7 @@ class ClaudeUsageMenuBarApp(rumps.App):
             "Refresh Now",
             "Auto-refresh: ON",
             None,  # Separator
-            "Quit"
+            rumps.MenuItem("Quit", callback=self.quit_app)
         ]
         self.auto_refresh = True
         self.refresh_interval = 30  # 30 seconds
@@ -100,7 +102,6 @@ class ClaudeUsageMenuBarApp(rumps.App):
         self.auto_refresh = not self.auto_refresh
         sender.title = f"Auto-refresh: {'ON' if self.auto_refresh else 'OFF'}"
     
-    @rumps.clicked("Quit")
     def quit_app(self, _):
         """Quit the application"""
         rumps.quit_application()
