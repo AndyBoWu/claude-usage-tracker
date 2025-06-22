@@ -15,7 +15,7 @@ import time
 
 class ClaudeUsageMenuBarApp(rumps.App):
     def __init__(self):
-        super(ClaudeUsageMenuBarApp, self).__init__("Claude: Loading...")
+        super(ClaudeUsageMenuBarApp, self).__init__("Claude: Loading...", quit_button=None)
         self.menu = [
             "Today's Requests: Loading...",
             "Today's Cost: Loading...",
