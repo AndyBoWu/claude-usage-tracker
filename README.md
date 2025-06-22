@@ -102,6 +102,60 @@ The widget shows:
 - Updates every 30 seconds
 - Minimal resource usage
 
+### Auto-start on Login
+
+To have the menu bar widget start automatically when you log in:
+
+**Method 1: Using LaunchAgent (Recommended)**
+
+1. Create a LaunchAgent plist file:
+```bash
+mkdir -p ~/Library/LaunchAgents
+cat > ~/Library/LaunchAgents/com.claude.usage-tracker.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.claude.usage-tracker</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>/Users/YOUR_USERNAME/claude-usage-tracker/claude_menu_bar.py</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>
+EOF
+```
+
+2. Replace `/Users/YOUR_USERNAME/claude-usage-tracker` with your actual path
+3. Load the LaunchAgent:
+```bash
+launchctl load ~/Library/LaunchAgents/com.claude.usage-tracker.plist
+```
+
+To unload: `launchctl unload ~/Library/LaunchAgents/com.claude.usage-tracker.plist`
+
+**Method 2: Using Login Items**
+
+1. Open System Settings → General → Login Items
+2. Click the + button under "Open at Login"
+3. Navigate to your `start_menu_bar.sh` script
+4. Select it and click Open
+
+**Method 3: Using a Startup App**
+
+Create an Automator app:
+1. Open Automator and create a new Application
+2. Add a "Run Shell Script" action
+3. Enter: `/path/to/your/claude-usage-tracker/start_menu_bar.sh`
+4. Save as "Claude Usage Tracker.app"
+5. Add to Login Items as in Method 2
+
 </details>
 
 ## 🛠 Advanced Usage
