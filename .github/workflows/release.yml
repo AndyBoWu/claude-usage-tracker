@@ -32,7 +32,7 @@ jobs:
     
     - name: Build macOS app
       run: |
-        pyinstaller claude_usage_tracker.spec
+        pyinstaller claude_usage_tracker_standalone.spec
     
     - name: Create DMG
       run: |

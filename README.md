@@ -18,11 +18,17 @@ Track your Claude Code usage and see what it would cost on API pricing. Get insi
 
 ## 🚀 Quick Start
 
-### Installation
+### macOS App (Recommended)
+
+Download the latest DMG from the [Releases page](https://github.com/AndyBoWu/claude-usage-tracker/releases) and drag to Applications.
+
+**Important**: See [MACOS_INSTALLATION.md](MACOS_INSTALLATION.md) for security warning workaround on first launch.
+
+### Command Line Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/andybowu/claude-usage-tracker.git
+git clone https://github.com/AndyBoWu/claude-usage-tracker.git
 cd claude-usage-tracker
 
 # Run the tracker
