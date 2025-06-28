@@ -4,7 +4,7 @@
 
 APP_NAME="Claude Usage Tracker"
 DMG_NAME="ClaudeUsageTracker"
-VERSION=$(python -c "import re; content=open('setup.py').read(); print(re.search(r'version=[\"']([^\"']+)[\"']', content).group(1))")
+VERSION="0.1.0"
 DMG_FILE="dist/${DMG_NAME}-${VERSION}.dmg"
 SOURCE_DIR="dist"
 VOLUME_NAME="${APP_NAME}"
