@@ -25,7 +25,7 @@ from claude_usage_tracker import ClaudeUsageTracker, Usage
 
 class ClaudeUsageMenuBarApp(rumps.App):
     def __init__(self):
-        super(ClaudeUsageMenuBarApp, self).__init__("Claude: Loading...", quit_button=None)
+        super(ClaudeUsageMenuBarApp, self).__init__("Loading...", quit_button=None)
         # Clear any default menu items first
         self.menu.clear()
         self.menu = [
@@ -163,8 +163,8 @@ class ClaudeUsageMenuBarApp(rumps.App):
             if output:
                 stats = self.parse_usage_output(output, all_usage)
                 
-                # Update menu bar title with TODAY's requests and cost
-                self.title = f"Claude: {stats['today_requests']} reqs | {stats['today_cost']}"
+                # Update menu bar title with TODAY's cost only
+                self.title = stats['today_cost']
                 
                 # Update menu items
                 self.menu["Today's Requests: Loading..."].title = f"Today's Requests: {stats['today_requests']}"
@@ -172,11 +172,11 @@ class ClaudeUsageMenuBarApp(rumps.App):
                 self.menu["30-Day Average: Loading..."].title = f"30-Day Average: {stats['daily_avg']}"
                 self.menu["Monthly Total: Loading..."].title = f"Monthly Total: {stats['total_cost']}"
             else:
-                self.title = "Claude: Error"
+                self.title = "Error"
                 print("Error: No output from tracker")
         
         except Exception as e:
-            self.title = "Claude: Error"
+            self.title = "Error"
             print(f"Exception in refresh_stats: {e}")
             import traceback
             traceback.print_exc()

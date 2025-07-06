@@ -15,7 +15,7 @@ import time
 
 class ClaudeUsageMenuBarApp(rumps.App):
     def __init__(self):
-        super(ClaudeUsageMenuBarApp, self).__init__("Claude: Loading...", quit_button=None)
+        super(ClaudeUsageMenuBarApp, self).__init__("Loading...", quit_button=None)
         # Clear any default menu items first
         self.menu.clear()
         self.menu = [
@@ -256,12 +256,12 @@ Today's Cost: {stats['today_cost']}"""
             if result.returncode == 0:
                 stats = self.parse_usage_output(result.stdout)
                 
-                # Update menu bar title with TODAY's requests and cost
+                # Update menu bar title with TODAY's cost only
                 if stats['today_requests'] != 'N/A':
-                    self.title = f"Claude: {stats['today_requests']} reqs | {stats['today_cost']}"
+                    self.title = stats['today_cost']
                 else:
                     # When no data for today, show 0 instead of total
-                    self.title = f"Claude: 0 reqs | $0.00"
+                    self.title = "$0.00"
                 
                 # Update menu items
                 self.menu["Today's Requests: Loading..."].title = f"Today's Requests: {stats['today_requests']}"
@@ -269,11 +269,11 @@ Today's Cost: {stats['today_cost']}"""
                 self.menu["30-Day Average: Loading..."].title = f"30-Day Average: {stats['daily_avg']}"
                 self.menu["Monthly Total: Loading..."].title = f"Monthly Total: {stats['total_cost']}"
             else:
-                self.title = "Claude: Error"
+                self.title = "Error"
                 print(f"Error running tracker: {result.stderr}")
         
         except Exception as e:
-            self.title = "Claude: Error"
+            self.title = "Error"
             print(f"Exception: {e}")
 
 if __name__ == "__main__":
