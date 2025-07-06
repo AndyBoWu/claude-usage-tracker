@@ -13,14 +13,20 @@ Track your Claude Code usage and see what it would cost on API pricing. Get insi
 - **🤖 Model Breakdown**: Track usage by model (Sonnet 4, Opus 4, etc.)
 - **📈 Projections**: Daily and monthly cost estimates based on your usage
 - **🖥️ Menu Bar Widget**: Real-time usage display in macOS menu bar
-- **🔧 Zero Dependencies**: Uses only Python standard library
+- **☁️ iCloud Sync**: NEW! Sync usage data across multiple Macs
+- **🔄 Multi-Mac Support**: NEW! Reconcile and view combined usage from all your devices
+- **🔧 Zero Dependencies**: Uses only Python standard library for core features
 - **⚡ Fast**: Analyzes thousands of conversations in seconds
 
 ## 🚀 Quick Start
 
-### macOS App (Recommended)
+### macOS Menu Bar App (Recommended)
 
-Download the latest DMG from the [Releases page](https://github.com/AndyBoWu/claude-usage-tracker/releases) and drag to Applications.
+Download the latest installer from the [Releases page](https://github.com/AndyBoWu/claude-usage-tracker/releases):
+- **ClaudeUsageTracker-MenuBar-1.0.0.dmg** - Drag to Applications
+- **ClaudeUsageTracker-MenuBar-1.0.0.pkg** - Double-click to install
+
+The app runs in your menu bar and includes full iCloud sync support.
 
 **Important**: See [MACOS_INSTALLATION.md](MACOS_INSTALLATION.md) for security warning workaround on first launch.
 
@@ -166,22 +172,76 @@ Create an Automator app:
 
 </details>
 
+## ☁️ Multi-Mac Sync (NEW!)
+
+<details>
+<summary>Sync usage data across all your Macs via iCloud</summary>
+
+### Setup
+
+1. **Install on Mac #1**: Download and install the menu bar app
+2. **Sync to iCloud**: Click menu bar icon → "Sync to iCloud"
+3. **Install on Mac #2**: Repeat installation on your other Mac(s)
+4. **Sync Mac #2**: Click menu bar icon → "Sync to iCloud"
+5. **Wait for iCloud**: Give it 2-5 minutes to sync between devices
+6. **Reconcile Data**: Click "Reconcile All Macs" on either Mac
+7. **View Combined**: Click "View Combined Stats" to see total usage
+
+### Features
+
+- **Automatic Machine ID**: Each Mac is uniquely identified
+- **Incremental Sync**: Only new data is synced to save bandwidth
+- **Conflict Resolution**: Handles duplicate sessions intelligently
+- **Privacy First**: Only usage metrics are synced, no conversation content
+- **iCloud Native**: Uses your existing iCloud Drive, no external services
+
+### Command Line Usage
+
+```bash
+# Sync current Mac's data
+claude-usage --sync
+
+# Reconcile data from all Macs
+claude-usage --reconcile
+
+# View combined statistics
+claude-usage --from-reconciled
+
+# Check sync status
+claude-usage --sync-status
+```
+
+### Data Location
+
+Sync data is stored in:
+```
+~/Library/Mobile Documents/com~apple~CloudDocs/ClaudeUsageTracker/
+```
+
+</details>
+
 ## 🛠 Advanced Usage
 
 ### Command Line Options
 
 ```bash
 # Show JSON output
-cu --json
+claude-usage --json
 
 # Filter by date range
-cu --start-date 2025-01-01 --end-date 2025-01-14
+claude-usage --start-date 2025-01-01 --end-date 2025-01-14
 
 # Specify custom Claude directory
-cu --claude-dir /path/to/.claude
+claude-usage --claude-dir /path/to/.claude
 
-# Export to CSV (coming soon)
-cu --export usage-report.csv
+# Sync to iCloud (NEW!)
+claude-usage --sync
+
+# Reconcile multi-Mac data (NEW!)
+claude-usage --reconcile
+
+# View combined stats from all Macs (NEW!)
+claude-usage --from-reconciled
 ```
 
 ### Tmux Integration

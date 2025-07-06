@@ -1,0 +1,40 @@
+# Build artifacts
+dist/
+build/
+*.dmg
+*.pkg
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Test files
+test_output/
+*.test
+
+# Temporary files
+*.tmp
+*.temp
+dmg_temp/

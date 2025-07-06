@@ -25,6 +25,12 @@ class ClaudeUsageMenuBarApp(rumps.App):
             "30-Day Average: Loading...",
             "Monthly Total: Loading...",
             None,  # Separator
+            "Sync to iCloud",
+            "Reconcile All Macs",
+            "View Combined Stats",
+            None,  # Separator
+            "Sync Status",
+            None,  # Separator
             "Refresh Now",
             "Auto-refresh: ON",
             None,  # Separator
@@ -105,6 +111,136 @@ class ClaudeUsageMenuBarApp(rumps.App):
     def quit_app(self, _):
         """Quit the application"""
         rumps.quit_application()
+    
+    @rumps.clicked("Sync to iCloud")
+    def sync_to_icloud(self, _):
+        """Sync local usage data to iCloud"""
+        rumps.notification("Claude Usage Tracker", "Syncing to iCloud", "Starting sync...")
+        
+        try:
+            result = subprocess.run(
+                ['python3', self.script_path, '--sync'],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if result.returncode == 0:
+                # Parse sync results
+                output = result.stdout.strip()
+                if "Successfully synced" in output:
+                    rumps.notification("Claude Usage Tracker", "Sync Complete", "Data synced to iCloud successfully")
+                elif output:
+                    rumps.notification("Claude Usage Tracker", "Sync Complete", output)
+                else:
+                    rumps.notification("Claude Usage Tracker", "Sync Complete", "Data synced to iCloud")
+            else:
+                error_msg = result.stderr.strip() if result.stderr else "Unknown error"
+                rumps.notification("Claude Usage Tracker", "Sync Failed", error_msg)
+        
+        except subprocess.TimeoutExpired:
+            rumps.notification("Claude Usage Tracker", "Sync Failed", "Operation timed out")
+        except Exception as e:
+            rumps.notification("Claude Usage Tracker", "Sync Failed", str(e))
+    
+    @rumps.clicked("Reconcile All Macs")
+    def reconcile_all_macs(self, _):
+        """Reconcile data from all synced machines"""
+        rumps.notification("Claude Usage Tracker", "Reconciling Data", "Combining data from all Macs...")
+        
+        try:
+            result = subprocess.run(
+                ['python3', self.script_path, '--reconcile'],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if result.returncode == 0:
+                # Parse reconcile results
+                output = result.stdout.strip()
+                # Look for reconciliation stats in output
+                if "Reconciled" in output and "unique sessions" in output:
+                    # Extract the number of sessions reconciled
+                    sessions_match = re.search(r'Reconciled (\d+) unique sessions', output)
+                    if sessions_match:
+                        sessions = sessions_match.group(1)
+                        rumps.notification("Claude Usage Tracker", "Reconcile Complete", f"Reconciled {sessions} sessions from all Macs")
+                    else:
+                        rumps.notification("Claude Usage Tracker", "Reconcile Complete", "Data reconciled successfully")
+                elif output:
+                    rumps.notification("Claude Usage Tracker", "Reconcile Complete", output)
+                else:
+                    rumps.notification("Claude Usage Tracker", "Reconcile Complete", "Data reconciled successfully")
+            else:
+                # Check if error is due to missing sync directory
+                error_msg = result.stderr.strip() if result.stderr else result.stdout.strip() if result.stdout else "Unknown error"
+                if "does not exist" in error_msg or "No such file or directory" in error_msg:
+                    rumps.notification("Claude Usage Tracker", "Reconcile Failed", "No synced data found. Run 'Sync to iCloud' first.")
+                else:
+                    rumps.notification("Claude Usage Tracker", "Reconcile Failed", error_msg)
+        
+        except subprocess.TimeoutExpired:
+            rumps.notification("Claude Usage Tracker", "Reconcile Failed", "Operation timed out")
+        except Exception as e:
+            rumps.notification("Claude Usage Tracker", "Reconcile Failed", str(e))
+    
+    @rumps.clicked("View Combined Stats")
+    def view_combined_stats(self, _):
+        """View combined statistics from all Macs"""
+        try:
+            result = subprocess.run(
+                ['python3', self.script_path, '--from-reconciled'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            if result.returncode == 0:
+                # Parse and show key stats in a window
+                stats = self.parse_usage_output(result.stdout)
+                
+                # Create a formatted message
+                message = f"""Combined Stats from All Macs:
+
+Total Requests: {stats['total_requests']}
+Total Cost: {stats['total_cost']}
+Daily Average: {stats['daily_avg']}
+Monthly Estimate: {stats['monthly_est']}
+
+Today's Requests: {stats['today_requests']}
+Today's Cost: {stats['today_cost']}"""
+                
+                rumps.alert("Combined Claude Usage Stats", message)
+            else:
+                rumps.alert("Error", f"Failed to get combined stats: {result.stderr or 'Unknown error'}")
+        
+        except subprocess.TimeoutExpired:
+            rumps.alert("Error", "Operation timed out")
+        except Exception as e:
+            rumps.alert("Error", f"Failed to get combined stats: {str(e)}")
+    
+    @rumps.clicked("Sync Status")
+    def show_sync_status(self, _):
+        """Show sync status information"""
+        try:
+            result = subprocess.run(
+                ['python3', self.script_path, '--sync-status'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            if result.returncode == 0:
+                # Show sync status in an alert
+                rumps.alert("Sync Status", result.stdout.strip())
+            else:
+                rumps.alert("Error", f"Failed to get sync status: {result.stderr or 'Unknown error'}")
+        
+        except subprocess.TimeoutExpired:
+            rumps.alert("Error", "Operation timed out")
+        except Exception as e:
+            rumps.alert("Error", f"Failed to get sync status: {str(e)}")
     
     def refresh_stats(self):
         """Refresh usage statistics from the tracker script"""

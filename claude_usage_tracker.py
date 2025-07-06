@@ -31,6 +31,7 @@ import argparse
 import csv
 import urllib.parse
 from zoneinfo import ZoneInfo
+import sys
 
 # Usage data structure
 Usage = namedtuple('Usage', ['input_tokens', 'output_tokens', 'cache_creation_tokens', 'cache_read_tokens', 'cost_usd', 'model', 'timestamp', 'project_name', 'session_id'])
@@ -716,13 +717,86 @@ def main():
     parser.add_argument('--claude-dir', type=str, help='Path to .claude directory (default: ~/.claude)')
     parser.add_argument('--json', action='store_true', help='Output as JSON instead of formatted report')
     
+    # Sync-related commands
+    parser.add_argument('--sync', action='store_true', help='Sync local usage data to iCloud')
+    parser.add_argument('--reconcile', action='store_true', help='Reconcile data from all synced machines')
+    parser.add_argument('--sync-status', action='store_true', help='Show sync status information')
+    parser.add_argument('--from-reconciled', action='store_true', help='Read from reconciled data instead of local')
+    parser.add_argument('--force-sync', action='store_true', help='Force full sync (ignore incremental state)')
+    
     args = parser.parse_args()
+    
+    # Handle sync-related commands first
+    if args.sync_status:
+        try:
+            from claude_sync import get_sync_status
+            status = get_sync_status()
+            print(json.dumps(status, indent=2) if args.json else format_sync_status(status))
+            return 0
+        except ImportError:
+            print("Error: claude_sync module not found")
+            return 1
+    
+    if args.sync:
+        try:
+            from claude_sync import export_usage_data, is_icloud_available, initialize_sync_directory
+            if not is_icloud_available():
+                print("Error: iCloud Drive is not available on this system")
+                return 1
+            
+            # Initialize sync directory if needed
+            initialize_sync_directory()
+            
+            # Initialize tracker to get usage data
+            tracker = ClaudeUsageTracker(args.claude_dir)
+            usage_data = tracker.collect_all_usage()
+            
+            if not usage_data:
+                print("No usage data to sync")
+                return 0
+            
+            # Export to iCloud
+            success = export_usage_data(usage_data, force_sync=args.force_sync)
+            if success:
+                print("✅ Successfully synced usage data to iCloud")
+                return 0
+            else:
+                print("❌ Failed to sync usage data")
+                return 1
+        except ImportError:
+            print("Error: claude_sync module not found")
+            return 1
+    
+    if args.reconcile:
+        try:
+            import subprocess
+            # Run the reconciliation script
+            result = subprocess.run([sys.executable, 'claude_reconcile.py'], 
+                                    capture_output=True, text=True)
+            print(result.stdout)
+            if result.stderr:
+                print("Errors:", result.stderr, file=sys.stderr)
+            return result.returncode
+        except FileNotFoundError:
+            print("Error: claude_reconcile.py not found")
+            return 1
     
     # Initialize tracker
     tracker = ClaudeUsageTracker(args.claude_dir)
     
-    # Collect and analyze usage
-    usage_data = tracker.collect_all_usage()
+    # Collect usage data (local or reconciled)
+    if args.from_reconciled:
+        try:
+            from claude_sync import read_reconciled_data
+            usage_data = read_reconciled_data()
+            if not usage_data:
+                print("No reconciled data found. Run --reconcile first.")
+                return 1
+        except ImportError:
+            print("Error: claude_sync module not found")
+            return 1
+    else:
+        usage_data = tracker.collect_all_usage()
     
     if not usage_data:
         print("No usage data found in Claude Code logs.")
@@ -773,6 +847,48 @@ def main():
     
     
     return 0
+
+
+def format_sync_status(status: Dict) -> str:
+    """Format sync status information for display."""
+    lines = [
+        "\n🔄 CLAUDE USAGE SYNC STATUS",
+        "=" * 50,
+        f"iCloud Available: {'✅ Yes' if status.get('icloud_available') else '❌ No'}",
+    ]
+    
+    if status.get('icloud_available'):
+        lines.extend([
+            f"Sync Directory: {status.get('sync_directory', 'Unknown')}",
+        ])
+        
+        # Machine info if available
+        if 'machine_info' in status:
+            lines.extend([
+                f"\nMachine Info:",
+                f"  ID: {status['machine_info'].get('machine_id', 'Unknown')}",
+                f"  Hostname: {status['machine_info'].get('hostname', 'Unknown')}",
+                f"  Platform: {status['machine_info'].get('platform', 'Unknown')}",
+            ])
+        
+        # Sync stats
+        lines.extend([
+            f"\nSync Stats:",
+            f"  Synced Machines: {status.get('synced_machines', 0)}",
+            f"  Total Conversations: {status.get('total_conversations', 0)}",
+        ])
+        
+        if status.get('last_sync'):
+            lines.append(f"  Last Sync: {status['last_sync']}")
+        else:
+            lines.append("  Last Sync: Never")
+            
+        if status.get('machines'):
+            lines.append("\nMachines:")
+            for machine in status['machines']:
+                lines.append(f"  - {machine}")
+    
+    return "\n".join(lines)
 
 
 def export_to_csv(usage_data: List[Usage], analysis: Dict, filename: str):
