@@ -4,10 +4,28 @@
 
 APP_NAME="Claude Usage Tracker"
 DMG_NAME="ClaudeUsageTracker"
-VERSION="0.1.0"
+
+# Get version from git tag, environment variable, or default
+if [ -n "$GITHUB_REF" ]; then
+    # Running in GitHub Actions with a tag
+    VERSION="${GITHUB_REF#refs/tags/v}"
+elif [ -n "$VERSION" ]; then
+    # Version passed as environment variable
+    VERSION="$VERSION"
+else
+    # Try to get version from git tag
+    VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
+    if [ -z "$VERSION" ]; then
+        # Default version if no tag exists
+        VERSION="0.1.0"
+    fi
+fi
+
 DMG_FILE="dist/${DMG_NAME}-${VERSION}.dmg"
 SOURCE_DIR="dist"
 VOLUME_NAME="${APP_NAME}"
+
+echo "Building DMG for version: ${VERSION}"
 
 # Clean up any existing DMG
 if [ -f "${DMG_FILE}" ]; then
