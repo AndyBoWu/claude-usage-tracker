@@ -1,0 +1,2 @@
+0add284ef2d72428986060d0a2edce306768dd54375d5ef82303512f6f81b1ed  ClaudeUsageTracker-MenuBar-1.0.0.dmg
+c77e73d1f9df31a80c20b777235fd846984bf78ef25510be1a74ca00c2a7c5f2  ClaudeUsageTracker-MenuBar-1.0.0.pkg
